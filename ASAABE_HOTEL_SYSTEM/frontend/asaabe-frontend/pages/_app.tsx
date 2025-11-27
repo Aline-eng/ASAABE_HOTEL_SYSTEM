@@ -1,0 +1,15 @@
+import type { AppProps } from 'next/app';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from '../src/theme';
+import Navbar from '../src/components/Navbar';
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Navbar />
+      <Component {...pageProps} />
+    </ThemeProvider>
+  );
+}
