@@ -100,7 +100,23 @@ export default function Signup() {
         }, 2000);
       } else {
         console.error('Registration error:', data);
-        const errorMsg = data.email?.[0] || data.password?.[0] || data.username?.[0] || data.non_field_errors?.[0] || 'Registration failed. Please try again.';
+        console.error('Response status:', response.status);
+        
+        // Handle different error formats
+        let errorMsg = 'Registration failed. Please try again.';
+        
+        if (data.email) {
+          errorMsg = Array.isArray(data.email) ? data.email[0] : data.email;
+        } else if (data.password) {
+          errorMsg = Array.isArray(data.password) ? data.password[0] : data.password;
+        } else if (data.non_field_errors) {
+          errorMsg = Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : data.non_field_errors;
+        } else if (typeof data === 'string') {
+          errorMsg = data;
+        } else if (data.detail) {
+          errorMsg = data.detail;
+        }
+        
         setError(errorMsg);
       }
 

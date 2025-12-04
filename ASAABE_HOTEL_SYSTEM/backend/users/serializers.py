@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from .models import User
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
+    password = serializers.CharField(write_only=True, min_length=6)
     password_confirm = serializers.CharField(write_only=True)
 
     class Meta:
@@ -21,8 +21,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         
-        # Ensure unique username
-        base_username = validated_data.get('username', validated_data['email'].split('@')[0])
+        # Generate unique username from email
+        base_username = validated_data['email'].split('@')[0]
         username = base_username
         counter = 1
         
