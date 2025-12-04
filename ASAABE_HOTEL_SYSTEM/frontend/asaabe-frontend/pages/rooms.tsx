@@ -43,55 +43,184 @@ interface Room {
 }
 
 export default function Rooms() {
-  const [rooms, setRooms] = useState<Room[]>([
-    {
-      id: 1,
-      title: 'Deluxe Sea View',
-      price: 120,
-      image: '/room1.jpg',
-      capacity: 2,
-      bed_type: 'Queen',
-      tags: ['Balcony', 'Wi-Fi', 'Breakfast'],
-      average_rating: 4.8,
-      total_reviews: 124,
-      room_number: '101',
-      room_type_name: 'Deluxe'
-    },
-    {
-      id: 2,
-      title: 'Executive Suite',
-      price: 180,
-      image: '/room2.jpg',
-      capacity: 4,
-      bed_type: 'King',
-      tags: ['King Bed', 'Workspace', 'Mini Bar'],
-      average_rating: 4.9,
-      total_reviews: 89,
-      room_number: '201',
-      room_type_name: 'Suite'
-    },
-    {
-      id: 3,
-      title: 'Standard Room',
-      price: 90,
-      image: '/room3.jpg',
-      capacity: 2,
-      bed_type: 'Queen',
-      tags: ['Air Conditioning', 'TV', 'Private Bathroom'],
-      average_rating: 4.6,
-      total_reviews: 156,
-      room_number: '102',
-      room_type_name: 'Standard'
-    }
-  ]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState([0, 500]);
 
   useEffect(() => {
+    fetchRooms();
+  }, []);
+
+  useEffect(() => {
     applyFilters();
   }, [rooms, searchTerm, priceRange]);
+
+  const fetchRooms = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/rooms/');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('API Response:', data); // Debug log
+        
+        // Handle both paginated and direct array responses
+        const roomsArray = Array.isArray(data) ? data : (data.results || []);
+        
+        if (Array.isArray(roomsArray)) {
+          // Transform API data to match component interface
+          const transformedRooms = roomsArray.map((room: any) => ({
+            id: room.id,
+            title: room.title,
+            price: parseFloat(room.price),
+            image: room.image_url || '/room1.jpg',
+            capacity: room.capacity,
+            bed_type: room.bed_type,
+            tags: room.tags || ['Wi-Fi', 'Air Conditioning', 'TV'],
+            average_rating: 4.5 + Math.random() * 0.5, // Mock rating
+            total_reviews: Math.floor(Math.random() * 200) + 50, // Mock reviews
+            room_number: `${Math.floor(Math.random() * 300) + 100}`,
+            room_type_name: room.title.split(' ')[0]
+          }));
+          setRooms(transformedRooms);
+        } else {
+          console.error('Expected array but got:', typeof roomsArray, roomsArray);
+          // Fallback to mock data if API fails
+          setRooms([
+            {
+              id: 1,
+              title: 'Deluxe Sea View',
+              price: 120,
+              image: '/room1.jpg',
+              capacity: 2,
+              bed_type: 'Queen',
+              tags: ['Balcony', 'Wi-Fi', 'Breakfast'],
+              average_rating: 4.8,
+              total_reviews: 124,
+              room_number: '101',
+              room_type_name: 'Deluxe'
+            },
+            {
+              id: 2,
+              title: 'Executive Suite',
+              price: 180,
+              image: '/room2.jpg',
+              capacity: 4,
+              bed_type: 'King',
+              tags: ['King Bed', 'Workspace', 'Mini Bar'],
+              average_rating: 4.9,
+              total_reviews: 89,
+              room_number: '201',
+              room_type_name: 'Suite'
+            },
+            {
+              id: 3,
+              title: 'Standard Room',
+              price: 90,
+              image: '/room3.jpg',
+              capacity: 2,
+              bed_type: 'Queen',
+              tags: ['Air Conditioning', 'TV', 'Private Bathroom'],
+              average_rating: 4.6,
+              total_reviews: 156,
+              room_number: '102',
+              room_type_name: 'Standard'
+            }
+          ]);
+        }
+      } else {
+        console.error('API request failed:', response.status);
+        // Use fallback data
+        setRooms([
+          {
+            id: 1,
+            title: 'Deluxe Sea View',
+            price: 120,
+            image: '/room1.jpg',
+            capacity: 2,
+            bed_type: 'Queen',
+            tags: ['Balcony', 'Wi-Fi', 'Breakfast'],
+            average_rating: 4.8,
+            total_reviews: 124,
+            room_number: '101',
+            room_type_name: 'Deluxe'
+          },
+          {
+            id: 2,
+            title: 'Executive Suite',
+            price: 180,
+            image: '/room2.jpg',
+            capacity: 4,
+            bed_type: 'King',
+            tags: ['King Bed', 'Workspace', 'Mini Bar'],
+            average_rating: 4.9,
+            total_reviews: 89,
+            room_number: '201',
+            room_type_name: 'Suite'
+          },
+          {
+            id: 3,
+            title: 'Standard Room',
+            price: 90,
+            image: '/room3.jpg',
+            capacity: 2,
+            bed_type: 'Queen',
+            tags: ['Air Conditioning', 'TV', 'Private Bathroom'],
+            average_rating: 4.6,
+            total_reviews: 156,
+            room_number: '102',
+            room_type_name: 'Standard'
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      // Use fallback data on network error
+      setRooms([
+        {
+          id: 1,
+          title: 'Deluxe Sea View',
+          price: 120,
+          image: '/room1.jpg',
+          capacity: 2,
+          bed_type: 'Queen',
+          tags: ['Balcony', 'Wi-Fi', 'Breakfast'],
+          average_rating: 4.8,
+          total_reviews: 124,
+          room_number: '101',
+          room_type_name: 'Deluxe'
+        },
+        {
+          id: 2,
+          title: 'Executive Suite',
+          price: 180,
+          image: '/room2.jpg',
+          capacity: 4,
+          bed_type: 'King',
+          tags: ['King Bed', 'Workspace', 'Mini Bar'],
+          average_rating: 4.9,
+          total_reviews: 89,
+          room_number: '201',
+          room_type_name: 'Suite'
+        },
+        {
+          id: 3,
+          title: 'Standard Room',
+          price: 90,
+          image: '/room3.jpg',
+          capacity: 2,
+          bed_type: 'Queen',
+          tags: ['Air Conditioning', 'TV', 'Private Bathroom'],
+          average_rating: 4.6,
+          total_reviews: 156,
+          room_number: '102',
+          room_type_name: 'Standard'
+        }
+      ]);
+    }
+    setLoading(false);
+  };
 
   const applyFilters = () => {
     let filtered = [...rooms];
@@ -162,35 +291,43 @@ export default function Rooms() {
           </Grid>
 
           <Grid size={{ xs: 12, md: 9 }}>
-            <Typography variant="h6" gutterBottom>
-              {filteredRooms.length} rooms found
-            </Typography>
-            
-            <Grid container spacing={3}>
-              {filteredRooms.map((room) => (
-                <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={room.id}>
-                  <RoomCard
-                    id={room.id}
-                    image={room.image}
-                    title={room.title}
-                    price={room.price}
-                    tags={room.tags}
-                    rating={room.average_rating}
-                    reviewCount={room.total_reviews}
-                    capacity={room.capacity}
-                    bedType={room.bed_type}
-                    roomNumber={room.room_number}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-
-            {filteredRooms.length === 0 && (
-              <Box sx={{ textAlign: 'center', py: 8 }}>
-                <Typography variant="h6" color="text.secondary">
-                  No rooms found matching your criteria
-                </Typography>
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <CircularProgress />
               </Box>
+            ) : (
+              <>
+                <Typography variant="h6" gutterBottom>
+                  {filteredRooms.length} rooms found
+                </Typography>
+                
+                <Grid container spacing={3}>
+                  {filteredRooms.map((room) => (
+                    <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={room.id}>
+                      <RoomCard
+                        id={room.id}
+                        image={room.image}
+                        title={room.title}
+                        price={room.price}
+                        tags={room.tags}
+                        rating={room.average_rating}
+                        reviewCount={room.total_reviews}
+                        capacity={room.capacity}
+                        bedType={room.bed_type}
+                        roomNumber={room.room_number}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+
+                {filteredRooms.length === 0 && !loading && (
+                  <Box sx={{ textAlign: 'center', py: 8 }}>
+                    <Typography variant="h6" color="text.secondary">
+                      No rooms found matching your criteria
+                    </Typography>
+                  </Box>
+                )}
+              </>
             )}
           </Grid>
         </Grid>

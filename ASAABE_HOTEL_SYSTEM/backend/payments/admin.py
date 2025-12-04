@@ -3,8 +3,20 @@ from .models import Payment
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'booking', 'amount', 'method', 'status', 'payment_date']
-    list_filter = ['method', 'status', 'payment_date']
-    search_fields = ['booking__booking_reference', 'transaction_id', 'stripe_payment_intent_id']
-    ordering = ['-payment_date']
-    readonly_fields = ['payment_date']
+    list_display = ('booking', 'amount', 'status', 'payment_method', 'created_at')
+    list_filter = ('status', 'payment_method', 'created_at')
+    search_fields = ('booking__booking_reference', 'transaction_id')
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('Payment Information', {
+            'fields': ('booking', 'amount', 'status', 'payment_method', 'transaction_id')
+        }),
+        ('Admin Notes', {
+            'fields': ('admin_notes',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )

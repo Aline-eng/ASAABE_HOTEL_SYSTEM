@@ -7,7 +7,8 @@ import {
   Chip,
   Button,
   Grid,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -20,41 +21,39 @@ export default function Bookings() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const userData = localStorage.getItem('user_data');
-    
-    if (!token || !userData) {
-      router.push('/login?redirect=/bookings');
-      return;
-    }
-
-    setUser(JSON.parse(userData));
-    
-    // Mock bookings data
-    setBookings([
-      {
-        id: 1,
-        room: 'Deluxe Sea View',
-        checkIn: '2025-02-15',
-        checkOut: '2025-02-18',
-        guests: 2,
-        status: 'confirmed',
-        total: 360,
-        reference: 'ASB001'
-      },
-      {
-        id: 2,
-        room: 'Executive Suite',
-        checkIn: '2025-03-10',
-        checkOut: '2025-03-12',
-        guests: 2,
-        status: 'pending',
-        total: 360,
-        reference: 'ASB002'
+    const fetchBookings = async () => {
+      const token = localStorage.getItem('access_token');
+      const userData = localStorage.getItem('user_data');
+      
+      if (!token || !userData) {
+        router.push('/login?redirect=/bookings');
+        return;
       }
-    ]);
-    
-    setLoading(false);
+
+      setUser(JSON.parse(userData));
+      
+      try {
+        const response = await fetch('http://localhost:8000/api/bookings/my_bookings/', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setBookings(data);
+        } else {
+          console.error('Failed to fetch bookings');
+        }
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+      }
+      
+      setLoading(false);
+    };
+
+    fetchBookings();
   }, [router]);
 
   const getStatusColor = (status: string) => {
@@ -120,7 +119,7 @@ export default function Bookings() {
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                       <Typography variant="h6" gutterBottom>
-                        {booking.room}
+                        {booking.room_details?.title || booking.room}
                       </Typography>
                       <Chip 
                         label={booking.status.toUpperCase()} 
@@ -132,7 +131,7 @@ export default function Bookings() {
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <CalendarToday sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
                       <Typography variant="body2">
-                        {booking.checkIn} to {booking.checkOut}
+                        {booking.check_in} to {booking.check_out}
                       </Typography>
                     </Box>
 
@@ -146,14 +145,14 @@ export default function Bookings() {
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <Hotel sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
                       <Typography variant="body2">
-                        Booking Reference: {booking.reference}
+                        Booking Reference: {booking.booking_reference}
                       </Typography>
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                       <Payment sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
                       <Typography variant="body2" fontWeight="bold">
-                        Total: ${booking.total}
+                        Total: ${booking.total_price}
                       </Typography>
                     </Box>
 

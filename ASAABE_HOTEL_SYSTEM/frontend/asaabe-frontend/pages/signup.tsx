@@ -70,46 +70,43 @@ export default function Signup() {
     }
 
     try {
-      // Simulate user registration - replace with actual API when backend is ready
-      
-      // Check if user already exists (simulate)
-      const existingUsers = ['admin@asaabe.com', 'customer@test.com'];
-      if (existingUsers.includes(formData.email)) {
-        setError('An account with this email already exists');
-        setLoading(false);
-        return;
+      // API call to backend
+      const response = await fetch('http://localhost:8000/api/users/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          password: formData.password,
+          password_confirm: formData.confirmPassword
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store user data and tokens
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        localStorage.setItem('user_data', JSON.stringify(data.user));
+
+        setSuccess('Account created successfully! Redirecting...');
+
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } else {
+        console.error('Registration error:', data);
+        const errorMsg = data.email?.[0] || data.password?.[0] || data.username?.[0] || data.non_field_errors?.[0] || 'Registration failed. Please try again.';
+        setError(errorMsg);
       }
 
-      // Simulate successful registration
-      const userData = {
-        id: Date.now(), // Generate unique ID
-        email: formData.email,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        role: 'customer'
-      };
-
-      // Store in localStorage (simulate database storage)
-      const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
-      registeredUsers.push({
-        ...userData,
-        password: formData.password // In real app, this would be hashed
-      });
-      localStorage.setItem('registered_users', JSON.stringify(registeredUsers));
-
-      // Auto-login the user
-      localStorage.setItem('access_token', `mock_token_${userData.id}`);
-      localStorage.setItem('refresh_token', `mock_refresh_${userData.id}`);
-      localStorage.setItem('user_data', JSON.stringify(userData));
-
-      setSuccess('Account created successfully! Redirecting...');
-
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);
-
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      console.error('Network error:', err);
+      setError('Network error. Please check if the server is running.');
     } finally {
       setLoading(false);
     }

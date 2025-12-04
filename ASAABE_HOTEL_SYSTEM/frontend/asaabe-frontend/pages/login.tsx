@@ -36,51 +36,36 @@ export default function Login() {
     setSuccess('');
 
     try {
-      // Simulate API call - replace with actual API when backend is ready
-      if (formData.email === 'admin@asaabe.com' && formData.password === 'admin123') {
-        // Store user data in localStorage
-        const userData = {
-          id: 1,
-          email: 'admin@asaabe.com',
-          first_name: 'Admin',
-          last_name: 'User',
-          role: 'admin'
-        };
-        
-        localStorage.setItem('access_token', 'mock_token_123');
-        localStorage.setItem('refresh_token', 'mock_refresh_123');
-        localStorage.setItem('user_data', JSON.stringify(userData));
-        
-        setSuccess('Login successful! Redirecting...');
-        
-        // Force page reload to update navbar state
-        setTimeout(() => {
-          const redirect = router.query.redirect as string;
-          window.location.href = redirect || '/';
-        }, 1500);
-      } else if (formData.email === 'customer@test.com' && formData.password === 'test123') {
-        // Customer login
-        const userData = {
-          id: 2,
-          email: 'customer@test.com',
-          first_name: 'Test',
-          last_name: 'Customer',
-          role: 'customer'
-        };
-        
-        localStorage.setItem('access_token', 'mock_token_456');
-        localStorage.setItem('refresh_token', 'mock_refresh_456');
-        localStorage.setItem('user_data', JSON.stringify(userData));
+      // API call to backend
+      const response = await fetch('http://localhost:8000/api/users/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store user data and tokens
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        localStorage.setItem('user_data', JSON.stringify(data.user));
         
         setSuccess('Login successful! Redirecting...');
         
-        // Force page reload to update navbar state
+        // Redirect admin to Django admin, others to frontend
         setTimeout(() => {
-          const redirect = router.query.redirect as string;
-          window.location.href = redirect || '/';
+          if (data.user.role === 'admin') {
+            window.location.href = 'http://localhost:8000/admin/';
+          } else {
+            const redirect = router.query.redirect as string;
+            window.location.href = redirect || '/';
+          }
         }, 1500);
       } else {
-        setError('Invalid email or password. Try admin@asaabe.com / admin123 or customer@test.com / test123');
+        setError(data.error || 'Invalid email or password');
       }
     } catch (err) {
       setError('Login failed. Please try again.');

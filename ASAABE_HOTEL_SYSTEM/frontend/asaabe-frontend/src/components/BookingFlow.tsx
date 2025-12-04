@@ -17,7 +17,8 @@ import {
   Divider,
   Alert
 } from '@mui/material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { RoomCard } from './RoomCard';
 
 const steps = ['Select Room & Dates', 'Guest Details', 'Review & Payment'];
@@ -38,6 +39,8 @@ interface BookingData {
 
 export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number }) => {
   const [activeStep, setActiveStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const [selectedRoom, setSelectedRoom] = useState(preselectedRoomId ? {
     id: preselectedRoomId,
     title: 'Deluxe Sea View',
@@ -57,26 +60,57 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
     guestDetails: []
   });
 
-  const rooms = [
-    {
-      id: 1,
-      title: 'Deluxe Sea View',
-      price: 120,
-      image: '/room1.jpg',
-      tags: ['Balcony', 'Wi-Fi', 'Breakfast'],
-      capacity: 2,
-      bedType: 'Queen'
-    },
-    {
-      id: 2,
-      title: 'Executive Suite',
-      price: 180,
-      image: '/room2.jpg',
-      tags: ['King Bed', 'Workspace', 'Mini Bar'],
-      capacity: 4,
-      bedType: 'King'
+  const [rooms, setRooms] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+
+  const fetchRooms = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/rooms/');
+      if (response.ok) {
+        const data = await response.json();
+        const roomsArray = Array.isArray(data) ? data : (data.results || []);
+        
+        if (Array.isArray(roomsArray)) {
+          const transformedRooms = roomsArray.map((room: any) => ({
+            id: room.id,
+            title: room.title,
+            price: parseFloat(room.price),
+            image: room.image_url || '/room1.jpg',
+            tags: room.tags || ['Wi-Fi', 'Air Conditioning', 'TV'],
+            capacity: room.capacity,
+            bedType: room.bed_type
+          }));
+          setRooms(transformedRooms);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      // Fallback rooms
+      setRooms([
+        {
+          id: 1,
+          title: 'Deluxe Sea View',
+          price: 120,
+          image: '/room1.jpg',
+          tags: ['Balcony', 'Wi-Fi', 'Breakfast'],
+          capacity: 2,
+          bedType: 'Queen'
+        },
+        {
+          id: 2,
+          title: 'Executive Suite',
+          price: 180,
+          image: '/room2.jpg',
+          tags: ['King Bed', 'Workspace', 'Mini Bar'],
+          capacity: 4,
+          bedType: 'King'
+        }
+      ]);
     }
-  ];
+  };
 
   const handleNext = () => {
     if (activeStep === 0 && (!selectedRoom || !bookingData.checkIn || !bookingData.checkOut)) {
@@ -115,6 +149,59 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
       return selectedRoom.price * calculateNights();
     }
     return 0;
+  };
+
+  const handleCompleteBooking = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        router.push('/login?redirect=/book');
+        return;
+      }
+
+      const response = await fetch('http://localhost:8000/api/bookings/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          room: bookingData.room,
+          check_in: bookingData.checkIn,
+          check_out: bookingData.checkOut,
+          guests: bookingData.guests,
+          special_requests: bookingData.specialRequests
+        }),
+      });
+
+      if (response.ok) {
+        const booking = await response.json();
+        
+        // Create payment record
+        await fetch('http://localhost:8000/api/payments/', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            booking: booking.id,
+            amount: calculateTotal(),
+            payment_method: 'pending'
+          }),
+        });
+
+        // Redirect to My Bookings page
+        router.push('/bookings');
+      } else {
+        alert('Booking failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      alert('Booking failed. Please try again.');
+    }
+    setLoading(false);
   };
 
   const renderStepContent = (step: number) => {
@@ -302,7 +389,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
         <Box sx={{ flex: '1 1 auto' }} />
         {activeStep === steps.length - 1 ? (
           <Button 
-            onClick={() => alert('Booking completed!')}
+            onClick={handleCompleteBooking}
             variant="contained"
             size="large"
           >

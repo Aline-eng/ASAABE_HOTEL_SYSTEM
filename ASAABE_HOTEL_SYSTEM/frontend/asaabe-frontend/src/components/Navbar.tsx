@@ -42,6 +42,7 @@ interface User {
 
 export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const theme = useTheme();
@@ -155,10 +156,16 @@ export default function Navbar() {
               <ListItemText primary="Profile" />
             </ListItem>
             {user.role === 'admin' && (
-              <ListItem component={Link} href="/admin" onClick={() => setMobileOpen(false)}>
-                <ListItemIcon><Dashboard /></ListItemIcon>
-                <ListItemText primary="Admin Dashboard" />
-              </ListItem>
+              <>
+                <ListItem component={Link} href="/admin-dashboard" onClick={() => setMobileOpen(false)}>
+                  <ListItemIcon><Dashboard /></ListItemIcon>
+                  <ListItemText primary="Frontend Dashboard" />
+                </ListItem>
+                <ListItem component="a" href="http://localhost:8000/admin/" target="_blank" onClick={() => setMobileOpen(false)}>
+                  <ListItemIcon><Dashboard /></ListItemIcon>
+                  <ListItemText primary="Django Admin" />
+                </ListItem>
+              </>
             )}
             <ListItem onClick={handleLogout}>
               <ListItemIcon><Logout /></ListItemIcon>
@@ -172,7 +179,7 @@ export default function Navbar() {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: '#0F1B2D' }}>
+      <AppBar position="sticky" sx={{ backgroundColor: '#0F1B2D', top: 0, zIndex: 1100 }}>
         <Toolbar>
           {isMobile && (
             <IconButton
@@ -235,11 +242,57 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <IconButton color="inherit">
+                  <IconButton 
+                    color="inherit"
+                    onClick={(e) => setNotificationAnchor(e.currentTarget)}
+                  >
                     <Badge badgeContent={3} color="error">
                       <Notifications />
                     </Badge>
                   </IconButton>
+                  
+                  <Menu
+                    anchorEl={notificationAnchor}
+                    open={Boolean(notificationAnchor)}
+                    onClose={() => setNotificationAnchor(null)}
+                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                    PaperProps={{ sx: { width: 300, maxHeight: 400 } }}
+                  >
+                    <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+                      <Typography variant="h6">Notifications</Typography>
+                    </Box>
+                    <MenuItem onClick={() => setNotificationAnchor(null)}>
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold">
+                          Booking Confirmed
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Your reservation for Deluxe Sea View has been confirmed
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem onClick={() => setNotificationAnchor(null)}>
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold">
+                          Payment Received
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Payment for booking ASB001 has been processed
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem onClick={() => setNotificationAnchor(null)}>
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold">
+                          Welcome to ASAABE
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Thank you for joining our hotel family
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  </Menu>
                   
                   <IconButton
                     size="large"
@@ -264,9 +317,14 @@ export default function Navbar() {
                       <AccountCircle sx={{ mr: 1 }} /> Profile
                     </MenuItem>
                     {user.role === 'admin' && (
-                      <MenuItem onClick={handleClose} component={Link} href="/admin">
-                        <Dashboard sx={{ mr: 1 }} /> Admin Dashboard
-                      </MenuItem>
+                      <>
+                        <MenuItem onClick={handleClose} component={Link} href="/admin-dashboard">
+                          <Dashboard sx={{ mr: 1 }} /> Frontend Dashboard
+                        </MenuItem>
+                        <MenuItem onClick={handleClose} component="a" href="http://localhost:8000/admin/" target="_blank">
+                          <Dashboard sx={{ mr: 1 }} /> Django Admin
+                        </MenuItem>
+                      </>
                     )}
                     <Divider />
                     <MenuItem onClick={handleLogout}>
