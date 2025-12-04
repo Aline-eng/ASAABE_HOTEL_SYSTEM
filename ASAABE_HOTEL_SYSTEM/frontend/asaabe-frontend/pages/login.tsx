@@ -147,19 +147,6 @@ export default function Login() {
               </Typography>
             </Box>
           </Box>
-
-          {/* Demo Credentials */}
-          <Box sx={{ mt: 3, p: 2, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
-            <Typography variant="subtitle2" gutterBottom>
-              Demo Credentials:
-            </Typography>
-            <Typography variant="body2">
-              Admin: admin@asaabe.com / admin123
-            </Typography>
-            <Typography variant="body2">
-              Customer: customer@test.com / test123
-            </Typography>
-          </Box>
         </Paper>
       </Container>
     </Box>
