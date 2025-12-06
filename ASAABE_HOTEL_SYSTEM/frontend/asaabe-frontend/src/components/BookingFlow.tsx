@@ -28,10 +28,12 @@ interface Room {
   id: number;
   title: string;
   price: string | number;
+  image?: string;
   image_url?: string;
   tags?: string[];
   capacity?: number;
   bed_type?: string;
+  bedType?: string;
 }
 
 interface BookingData {
@@ -52,7 +54,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [selectedRoom, setSelectedRoom] = useState(preselectedRoomId ? {
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(preselectedRoomId ? {
     id: preselectedRoomId,
     title: 'Deluxe Sea View',
     price: 120,
@@ -272,8 +274,8 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
                 <Grid size={{ xs: 12, md: 6 }} key={room.id}>
                   <Box 
                     onClick={() => {
-                      setSelectedRoom(room);
-                      setBookingData(prev => ({ ...prev, room: room.id }));
+                      setSelectedRoom(room as any);
+                      setBookingData(prev => ({ ...prev, room: room.id as number }));
                     }}
                     sx={{ 
                       cursor: 'pointer',
