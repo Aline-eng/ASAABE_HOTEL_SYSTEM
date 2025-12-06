@@ -7,9 +7,18 @@ class BookingGuestSerializer(serializers.ModelSerializer):
         model = BookingGuest
         fields = '__all__'
 
+class UserBasicSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    phone = serializers.CharField()
+    role = serializers.CharField()
+
 class BookingSerializer(serializers.ModelSerializer):
     room_details = RoomSerializer(source='room', read_only=True)
     guest_details = BookingGuestSerializer(many=True, read_only=True)
+    user = UserBasicSerializer(read_only=True)
     nights = serializers.ReadOnlyField()
 
     class Meta:
@@ -19,7 +28,8 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
+        booking = super().create(validated_data)
+        return booking
 
 class BookingCreateSerializer(serializers.ModelSerializer):
     class Meta:

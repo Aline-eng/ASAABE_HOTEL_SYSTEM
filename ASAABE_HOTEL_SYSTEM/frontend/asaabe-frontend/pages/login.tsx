@@ -6,8 +6,11 @@ import {
   Button,
   Typography,
   Alert,
-  Link as MuiLink
+  Link as MuiLink,
+  IconButton,
+  InputAdornment
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -20,6 +23,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +62,7 @@ export default function Login() {
         // Redirect admin to Django admin, others to frontend
         setTimeout(() => {
           if (data.user.role === 'admin') {
-            window.location.href = 'http://localhost:8000/admin/';
+            window.location.href = 'http://localhost:3000/admin-dashboard/';
           } else {
             const redirect = router.query.redirect as string;
             window.location.href = redirect || '/';
@@ -120,11 +124,23 @@ export default function Login() {
               fullWidth
               label="Password"
               name="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={handleChange}
               required
               sx={{ mb: 3 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
 
             <Button

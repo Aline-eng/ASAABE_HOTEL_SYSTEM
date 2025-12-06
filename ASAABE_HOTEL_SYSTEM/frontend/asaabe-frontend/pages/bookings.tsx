@@ -33,16 +33,39 @@ export default function Bookings() {
       setUser(JSON.parse(userData));
       
       try {
-        const response = await fetch('http://localhost:8000/api/bookings/my_bookings/', {
+        // Fetch bookings
+        const bookingsResponse = await fetch('http://localhost:8000/api/bookings/my_bookings/', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setBookings(data);
+        if (bookingsResponse.ok) {
+          const bookingsData = await bookingsResponse.json();
+          
+          // Fetch payments for each booking
+          const paymentsResponse = await fetch('http://localhost:8000/api/payments/', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (paymentsResponse.ok) {
+            const paymentsData = await paymentsResponse.json();
+            const paymentsArray = Array.isArray(paymentsData) ? paymentsData : (paymentsData.results || []);
+            
+            // Attach payment info to bookings
+            const bookingsWithPayments = bookingsData.map((booking: any) => ({
+              ...booking,
+              payment: paymentsArray.find((p: any) => p.booking === booking.id)
+            }));
+            
+            setBookings(bookingsWithPayments);
+          } else {
+            setBookings(bookingsData);
+          }
         } else {
           console.error('Failed to fetch bookings');
         }
@@ -149,11 +172,23 @@ export default function Bookings() {
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <Payment sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
                       <Typography variant="body2" fontWeight="bold">
                         Total: ${booking.total_price}
                       </Typography>
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        Payment Status: 
+                      </Typography>
+                      <Chip 
+                        label={booking.payment?.status?.toUpperCase() || 'PENDING'} 
+                        color={getStatusColor(booking.payment?.status || 'pending') as any}
+                        size="small"
+                        sx={{ ml: 1 }}
+                      />
                     </Box>
 
                     <Box sx={{ display: 'flex', gap: 1 }}>
@@ -161,9 +196,15 @@ export default function Bookings() {
                         View Details
                       </Button>
                       {booking.status === 'pending' && (
-                        <Button variant="contained" size="small">
-                          Complete Payment
+                        <Button variant="contained" size="small" disabled>
+                          Awaiting Approval
                         </Button>
+                      )}
+                      {booking.status === 'confirmed' && booking.payment?.status === 'approved' && (
+                        <Chip label="APPROVED" color="success" size="small" />
+                      )}
+                      {booking.status === 'cancelled' && (
+                        <Chip label="DENIED" color="error" size="small" />
                       )}
                     </Box>
                   </CardContent>

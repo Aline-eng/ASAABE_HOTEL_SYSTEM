@@ -114,10 +114,12 @@ export default function AdminDashboard() {
       });
 
       if (response.ok) {
-        // Update payment status if exists
-        const payment = payments.find(p => p.booking === selectedBooking.id);
+        // Find or create payment
+        let payment = payments.find(p => p.booking === selectedBooking.id);
+        
         if (payment) {
-          const paymentStatus = newStatus === 'confirmed' ? 'approved' : 'rejected';
+          // Update existing payment
+          const paymentStatus = newStatus === 'confirmed' ? 'approved' : newStatus === 'cancelled' ? 'rejected' : 'pending';
           await fetch(`http://localhost:8000/api/payments/${payment.id}/update_status/`, {
             method: 'PATCH',
             headers: {
@@ -129,10 +131,27 @@ export default function AdminDashboard() {
               admin_notes: adminNotes 
             }),
           });
+        } else {
+          // Create payment if doesn't exist
+          const paymentStatus = newStatus === 'confirmed' ? 'approved' : newStatus === 'cancelled' ? 'rejected' : 'pending';
+          await fetch(`http://localhost:8000/api/payments/`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              booking: selectedBooking.id,
+              amount: selectedBooking.total_price,
+              status: paymentStatus,
+              payment_method: 'admin_processed',
+              admin_notes: adminNotes 
+            }),
+          });
         }
 
         // Refresh data
-        fetchData(token!);
+        await fetchData(token!);
         setStatusDialog(false);
         setSelectedBooking(null);
         setNewStatus('');
@@ -255,45 +274,85 @@ export default function AdminDashboard() {
                 <TableHead>
                   <TableRow>
                     <TableCell>Reference</TableCell>
-                    <TableCell>Guest</TableCell>
+                    <TableCell>Guest Info</TableCell>
                     <TableCell>Room</TableCell>
                     <TableCell>Dates</TableCell>
+                    <TableCell>Guests</TableCell>
+                    <TableCell>Payment</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell>Total</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {bookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>{booking.booking_reference}</TableCell>
-                      <TableCell>{booking.user?.first_name} {booking.user?.last_name}</TableCell>
-                      <TableCell>{booking.room_details?.title || 'N/A'}</TableCell>
-                      <TableCell>
-                        {booking.check_in} to {booking.check_out}
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={booking.status.toUpperCase()} 
-                          color={getStatusColor(booking.status) as any}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>${booking.total_price}</TableCell>
-                      <TableCell>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          onClick={() => {
-                            setSelectedBooking(booking);
-                            setStatusDialog(true);
-                          }}
-                        >
-                          Manage
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {bookings.map((booking) => {
+                    const payment = payments.find(p => p.booking === booking.id);
+                    return (
+                      <TableRow key={booking.id}>
+                        <TableCell>{booking.booking_reference}</TableCell>
+                        <TableCell>
+                          <Box>
+                            <Typography variant="body2" fontWeight="bold">
+                              {booking.user?.first_name} {booking.user?.last_name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {booking.user?.email}
+                            </Typography>
+                            {booking.user?.phone && (
+                              <Typography variant="caption" display="block" color="text.secondary">
+                                {booking.user?.phone}
+                              </Typography>
+                            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell>{booking.room_details?.title || 'N/A'}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2">
+                            {booking.check_in}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            to {booking.check_out}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>{booking.guests}</TableCell>
+                        <TableCell>
+                          {payment ? (
+                            <Chip 
+                              label={payment.status.toUpperCase()} 
+                              color={getStatusColor(payment.status) as any}
+                              size="small"
+                            />
+                          ) : (
+                            <Chip label="NO PAYMENT" size="small" />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={booking.status.toUpperCase()} 
+                            color={getStatusColor(booking.status) as any}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight="bold">
+                            ${booking.total_price}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => {
+                              setSelectedBooking(booking);
+                              setStatusDialog(true);
+                            }}
+                          >
+                            Manage
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -301,30 +360,85 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Status Update Dialog */}
-        <Dialog open={statusDialog} onClose={() => setStatusDialog(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Update Booking Status</DialogTitle>
+        <Dialog open={statusDialog} onClose={() => setStatusDialog(false)} maxWidth="md" fullWidth>
+          <DialogTitle>Manage Booking & Payment</DialogTitle>
           <DialogContent>
             {selectedBooking && (
               <Box sx={{ pt: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Booking: {selectedBooking.booking_reference}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Guest: {selectedBooking.user?.first_name} {selectedBooking.user?.last_name}
-                </Typography>
+                {/* Guest Information */}
+                <Card sx={{ mb: 3, bgcolor: '#f5f5f5' }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>Guest Information</Typography>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Name</Typography>
+                        <Typography variant="body1" fontWeight="bold">
+                          {selectedBooking.user?.first_name} {selectedBooking.user?.last_name}
+                        </Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Email</Typography>
+                        <Typography variant="body1">{selectedBooking.user?.email}</Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Phone</Typography>
+                        <Typography variant="body1">{selectedBooking.user?.phone || 'N/A'}</Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Booking Reference</Typography>
+                        <Typography variant="body1" fontWeight="bold">{selectedBooking.booking_reference}</Typography>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+
+                {/* Booking Details */}
+                <Card sx={{ mb: 3 }}>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>Booking Details</Typography>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Room</Typography>
+                        <Typography variant="body1">{selectedBooking.room_details?.title}</Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Guests</Typography>
+                        <Typography variant="body1">{selectedBooking.guests}</Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Check-in</Typography>
+                        <Typography variant="body1">{selectedBooking.check_in}</Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <Typography variant="body2" color="text.secondary">Check-out</Typography>
+                        <Typography variant="body1">{selectedBooking.check_out}</Typography>
+                      </Grid>
+                      <Grid size={{ xs: 12 }}>
+                        <Typography variant="body2" color="text.secondary">Total Amount</Typography>
+                        <Typography variant="h6" color="primary.main">${selectedBooking.total_price}</Typography>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
                 
-                <FormControl fullWidth sx={{ mb: 3 }}>
-                  <InputLabel>New Status</InputLabel>
+                {/* Status Management */}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Booking Status</InputLabel>
                   <Select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
                   >
-                    <MenuItem value="confirmed">Confirmed</MenuItem>
-                    <MenuItem value="cancelled">Cancelled</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="confirmed">Confirmed (Approve)</MenuItem>
+                    <MenuItem value="cancelled">Cancelled (Deny)</MenuItem>
                     <MenuItem value="checked_in">Checked In</MenuItem>
                     <MenuItem value="checked_out">Checked Out</MenuItem>
                   </Select>
                 </FormControl>
+
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  Selecting "Confirmed" will approve the payment. Selecting "Cancelled" will reject it.
+                </Alert>
 
                 <TextField
                   fullWidth
@@ -333,15 +447,19 @@ export default function AdminDashboard() {
                   rows={3}
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  placeholder="Add any notes about this status change..."
+                  placeholder="Add notes about this decision (visible to system only)..."
                 />
               </Box>
             )}
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setStatusDialog(false)}>Cancel</Button>
-            <Button onClick={handleStatusUpdate} variant="contained">
-              Update Status
+            <Button 
+              onClick={handleStatusUpdate} 
+              variant="contained"
+              disabled={!newStatus}
+            >
+              Update & Process Payment
             </Button>
           </DialogActions>
         </Dialog>

@@ -16,6 +16,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Payment.objects.all()
         return Payment.objects.filter(booking__user=user)
 
+    def create(self, request, *args, **kwargs):
+        # Allow admin to set initial status
+        return super().create(request, *args, **kwargs)
+
     @action(detail=True, methods=['patch'])
     def update_status(self, request, pk=None):
         if request.user.role != 'admin':
@@ -31,13 +35,5 @@ class PaymentViewSet(viewsets.ModelViewSet):
         payment.status = new_status
         payment.admin_notes = admin_notes
         payment.save()
-        
-        # Update booking status based on payment status
-        if new_status == 'approved':
-            payment.booking.status = 'confirmed'
-            payment.booking.save()
-        elif new_status == 'rejected':
-            payment.booking.status = 'cancelled'
-            payment.booking.save()
         
         return Response(PaymentSerializer(payment).data)

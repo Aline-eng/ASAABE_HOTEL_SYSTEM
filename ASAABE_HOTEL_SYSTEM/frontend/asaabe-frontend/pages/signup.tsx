@@ -7,8 +7,12 @@ import {
   Typography,
   Alert,
   Link as MuiLink,
-  Grid
+  Grid,
+  IconButton,
+  InputAdornment,
+  LinearProgress
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -18,19 +22,41 @@ export default function Signup() {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, label: '', color: '' });
   const router = useRouter();
 
+  const calculatePasswordStrength = (password: string) => {
+    let score = 0;
+    if (password.length >= 6) score++;
+    if (password.length >= 10) score++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^a-zA-Z\d]/.test(password)) score++;
+
+    if (score <= 2) return { score: 33, label: 'Weak', color: 'error' };
+    if (score <= 4) return { score: 66, label: 'Medium', color: 'warning' };
+    return { score: 100, label: 'Strong', color: 'success' };
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    
+    if (name === 'password') {
+      setPasswordStrength(calculatePasswordStrength(value));
+    }
   };
 
   const validateForm = () => {
@@ -80,6 +106,7 @@ export default function Signup() {
           email: formData.email,
           first_name: formData.firstName,
           last_name: formData.lastName,
+          phone: formData.phone,
           password: formData.password,
           password_confirm: formData.confirmPassword
         }),
@@ -195,25 +222,77 @@ export default function Signup() {
 
             <TextField
               fullWidth
-              label="Password"
-              name="password"
-              type="password"
-              value={formData.password}
+              label="Phone Number (Optional)"
+              name="phone"
+              type="tel"
+              value={formData.phone}
               onChange={handleChange}
-              required
-              helperText="Minimum 6 characters"
+              placeholder="+250 788 123 456"
               sx={{ mt: 2 }}
             />
 
             <TextField
               fullWidth
+              label="Password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleChange}
+              required
+              sx={{ mt: 2 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
+            />
+            {formData.password && (
+              <Box sx={{ mt: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={passwordStrength.score} 
+                    color={passwordStrength.color as any}
+                    sx={{ flexGrow: 1, height: 6, borderRadius: 1 }}
+                  />
+                  <Typography variant="caption" color={`${passwordStrength.color}.main`}>
+                    {passwordStrength.label}
+                  </Typography>
+                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  Use 10+ characters with mix of letters, numbers & symbols
+                </Typography>
+              </Box>
+            )}
+
+            <TextField
+              fullWidth
               label="Confirm Password"
               name="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               value={formData.confirmPassword}
               onChange={handleChange}
               required
               sx={{ mt: 2, mb: 3 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
 
             <Button
