@@ -60,13 +60,13 @@ export default function Login() {
         
         setSuccess('Login successful! Redirecting...');
         
-        // Redirect admin to Django admin, others to frontend
+        // Redirect admin to admin dashboard, others to home or redirect URL
         setTimeout(() => {
           if (data.user.role === 'admin') {
-            window.location.href = 'http://localhost:3000/admin-dashboard/';
+            router.push('/admin-dashboard');
           } else {
             const redirect = router.query.redirect as string;
-            window.location.href = redirect || '/';
+            router.push(redirect || '/');
           }
         }, 1500);
       } else {
