@@ -266,7 +266,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
             {selectedRoom && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>Selected Room:</Typography>
-                <RoomCard {...selectedRoom} />
+                <RoomCard {...selectedRoom} image={selectedRoom.image || '/room1.jpg'} />
               </Box>
             )}
 
@@ -285,7 +285,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
                       borderRadius: 1
                     }}
                   >
-                    <RoomCard {...room} />
+                    <RoomCard {...room} image={room.image || '/room1.jpg'} />
                   </Box>
                 </Grid>
               ))}
