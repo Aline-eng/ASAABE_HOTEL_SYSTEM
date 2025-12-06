@@ -57,7 +57,7 @@ const testimonials = [
 ];
 
 export default function Home() {
-  const [featuredRooms, setFeaturedRooms] = useState([]);
+  const [featuredRooms, setFeaturedRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
