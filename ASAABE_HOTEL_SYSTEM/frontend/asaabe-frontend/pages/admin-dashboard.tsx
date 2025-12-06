@@ -28,6 +28,7 @@ import {
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Dashboard, Hotel, People, Payment, CheckCircle, Cancel } from '@mui/icons-material';
+import { API_URL } from '../src/config/api';
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -66,7 +67,7 @@ export default function AdminDashboard() {
   const fetchData = async (token: string) => {
     try {
       // Fetch bookings
-      const bookingsResponse = await fetch('http://localhost:8000/api/bookings/admin_bookings/', {
+      const bookingsResponse = await fetch(`${API_URL}/api/bookings/admin_bookings/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -79,7 +80,7 @@ export default function AdminDashboard() {
       }
 
       // Fetch payments
-      const paymentsResponse = await fetch('http://localhost:8000/api/payments/', {
+      const paymentsResponse = await fetch(`${API_URL}/api/payments/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -104,7 +105,7 @@ export default function AdminDashboard() {
       const token = localStorage.getItem('access_token');
       
       // Update booking status
-      const response = await fetch(`http://localhost:8000/api/bookings/${selectedBooking.id}/update_status/`, {
+      const response = await fetch(`${API_URL}/api/bookings/${selectedBooking.id}/update_status/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -120,7 +121,7 @@ export default function AdminDashboard() {
         if (payment) {
           // Update existing payment
           const paymentStatus = newStatus === 'confirmed' ? 'approved' : newStatus === 'cancelled' ? 'rejected' : 'pending';
-          await fetch(`http://localhost:8000/api/payments/${payment.id}/update_status/`, {
+          await fetch(`${API_URL}/api/payments/${payment.id}/update_status/`, {
             method: 'PATCH',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -134,7 +135,7 @@ export default function AdminDashboard() {
         } else {
           // Create payment if doesn't exist
           const paymentStatus = newStatus === 'confirmed' ? 'approved' : newStatus === 'cancelled' ? 'rejected' : 'pending';
-          await fetch(`http://localhost:8000/api/payments/`, {
+          await fetch(`${API_URL}/api/payments/`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,

@@ -14,6 +14,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { API_URL } from '../src/config/api';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ export default function Login() {
 
     try {
       // API call to backend
-      const response = await fetch('http://localhost:8000/api/users/login/', {
+      const response = await fetch(`${API_URL}/api/users/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -20,6 +20,7 @@ import {
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { RoomCard } from './RoomCard';
+import { API_URL } from '../config/api';
 
 const steps = ['Select Room & Dates', 'Guest Details', 'Review & Payment'];
 
@@ -68,7 +69,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/rooms/');
+      const response = await fetch(`${API_URL}/api/rooms/`);
       if (response.ok) {
         const data = await response.json();
         const roomsArray = Array.isArray(data) ? data : (data.results || []);
@@ -160,7 +161,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/bookings/', {
+      const response = await fetch(`${API_URL}/api/bookings/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -179,7 +180,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
         const booking = await response.json();
         
         // Create payment record
-        await fetch('http://localhost:8000/api/payments/', {
+        await fetch(`${API_URL}/api/payments/`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

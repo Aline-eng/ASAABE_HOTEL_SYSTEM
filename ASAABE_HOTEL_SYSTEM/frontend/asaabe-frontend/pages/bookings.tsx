@@ -13,6 +13,7 @@ import {
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { CalendarToday, Person, Hotel, Payment } from '@mui/icons-material';
+import { API_URL } from '../src/config/api';
 
 export default function Bookings() {
   const [user, setUser] = useState<any>(null);
@@ -34,7 +35,7 @@ export default function Bookings() {
       
       try {
         // Fetch bookings
-        const bookingsResponse = await fetch('http://localhost:8000/api/bookings/my_bookings/', {
+        const bookingsResponse = await fetch(`${API_URL}/api/bookings/my_bookings/`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ export default function Bookings() {
           const bookingsData = await bookingsResponse.json();
           
           // Fetch payments for each booking
-          const paymentsResponse = await fetch('http://localhost:8000/api/payments/', {
+          const paymentsResponse = await fetch(`${API_URL}/api/payments/`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',

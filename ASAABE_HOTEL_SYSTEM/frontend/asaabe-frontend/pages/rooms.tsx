@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
 import { RoomCard } from '../src/components/RoomCard';
+import { API_URL } from '../src/config/api';
 
 interface Room {
   id: number;
@@ -60,7 +61,7 @@ export default function Rooms() {
   const fetchRooms = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/rooms/');
+      const response = await fetch(`${API_URL}/api/rooms/`);
       if (response.ok) {
         const data = await response.json();
         console.log('API Response:', data); // Debug log
