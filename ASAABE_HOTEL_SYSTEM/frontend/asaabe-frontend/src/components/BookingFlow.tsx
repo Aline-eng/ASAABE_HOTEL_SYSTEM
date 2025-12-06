@@ -266,7 +266,15 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
             {selectedRoom && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>Selected Room:</Typography>
-                <RoomCard {...selectedRoom} image={selectedRoom.image || '/room1.jpg'} />
+                <RoomCard 
+                  id={selectedRoom.id}
+                  title={selectedRoom.title}
+                  price={selectedRoom.price}
+                  image={selectedRoom.image || '/room1.jpg'}
+                  tags={selectedRoom.tags || []}
+                  capacity={selectedRoom.capacity}
+                  bedType={selectedRoom.bedType}
+                />
               </Box>
             )}
 
@@ -285,7 +293,15 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
                       borderRadius: 1
                     }}
                   >
-                    <RoomCard {...room} image={room.image || '/room1.jpg'} />
+                    <RoomCard 
+                      id={room.id}
+                      title={room.title}
+                      price={room.price}
+                      image={room.image || '/room1.jpg'}
+                      tags={room.tags || []}
+                      capacity={room.capacity}
+                      bedType={room.bedType}
+                    />
                   </Box>
                 </Grid>
               ))}
