@@ -192,7 +192,7 @@ export default function Home() {
         
         <Grid container spacing={4}>
           {featuredRooms.map((room, index) => (
-            <Grid item xs={12} sm={6} md={4} key={room.id || index}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={room.id || index}>
               <RoomCard {...room} />
             </Grid>
           ))}
@@ -233,7 +233,7 @@ export default function Home() {
           
           <Grid container spacing={3}>
             {amenities.map((amenity, i) => (
-              <Grid item xs={12} sm={6} md={3} key={i}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
                 <Card 
                   sx={{ 
                     height: '100%',
@@ -280,7 +280,7 @@ export default function Home() {
         
         <Grid container spacing={4}>
           {testimonials.map((testimonial, index) => (
-            <Grid item xs={12} md={4} key={index}>
+            <Grid size={{ xs: 12, md: 4 }} key={index}>
               <Card sx={{ height: '100%', p: 2 }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>

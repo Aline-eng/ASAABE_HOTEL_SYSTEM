@@ -137,7 +137,7 @@ export default function Bookings() {
         ) : (
           <Grid container spacing={3}>
             {bookings.map((booking) => (
-              <Grid item xs={12} md={6} key={booking.id}>
+              <Grid size={{ xs: 12, md: 6 }} key={booking.id}>
                 <Card sx={{ height: '100%' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
