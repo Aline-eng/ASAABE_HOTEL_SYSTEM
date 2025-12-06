@@ -260,7 +260,7 @@ export default function Rooms() {
 
       <Container sx={{ py: 4 }}>
         <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 3 }}>
+          <Grid item xs={12} md={3}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Filters
@@ -290,7 +290,7 @@ export default function Rooms() {
             </Paper>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 9 }}>
+          <Grid item xs={12} md={9}>
             {loading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
                 <CircularProgress />
@@ -303,7 +303,7 @@ export default function Rooms() {
                 
                 <Grid container spacing={3}>
                   {filteredRooms.map((room) => (
-                    <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={room.id}>
+                    <Grid item xs={12} sm={6} lg={4} key={room.id}>
                       <RoomCard
                         id={room.id}
                         image={room.image}

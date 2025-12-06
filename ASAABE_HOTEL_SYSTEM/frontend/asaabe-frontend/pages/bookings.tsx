@@ -6,7 +6,7 @@ import {
   CardContent,
   Chip,
   Button,
-  Grid2,
+  Grid,
   Alert,
   CircularProgress
 } from '@mui/material';
@@ -135,9 +135,9 @@ export default function Bookings() {
             </Button>
           </Alert>
         ) : (
-          <Grid2 container spacing={3}>
+          <Grid container spacing={3}>
             {bookings.map((booking) => (
-              <Grid2 size={{ xs: 12, md: 6 }} key={booking.id}>
+              <Grid item xs={12} md={6} key={booking.id}>
                 <Card sx={{ height: '100%' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
@@ -209,9 +209,9 @@ export default function Bookings() {
                     </Box>
                   </CardContent>
                 </Card>
-              </Grid2>
+              </Grid>
             ))}
-          </Grid2>
+          </Grid>
         )}
 
         <Box sx={{ mt: 4, textAlign: 'center' }}>

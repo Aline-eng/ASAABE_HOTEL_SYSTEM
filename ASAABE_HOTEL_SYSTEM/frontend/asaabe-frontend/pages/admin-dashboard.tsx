@@ -203,7 +203,7 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -231,7 +231,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -246,7 +246,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -370,21 +370,21 @@ export default function AdminDashboard() {
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Guest Information</Typography>
                     <Grid container spacing={2}>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Name</Typography>
                         <Typography variant="body1" fontWeight="bold">
                           {selectedBooking.user?.first_name} {selectedBooking.user?.last_name}
                         </Typography>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Email</Typography>
                         <Typography variant="body1">{selectedBooking.user?.email}</Typography>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Phone</Typography>
                         <Typography variant="body1">{selectedBooking.user?.phone || 'N/A'}</Typography>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Booking Reference</Typography>
                         <Typography variant="body1" fontWeight="bold">{selectedBooking.booking_reference}</Typography>
                       </Grid>
@@ -397,23 +397,23 @@ export default function AdminDashboard() {
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Booking Details</Typography>
                     <Grid container spacing={2}>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Room</Typography>
                         <Typography variant="body1">{selectedBooking.room_details?.title}</Typography>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Guests</Typography>
                         <Typography variant="body1">{selectedBooking.guests}</Typography>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Check-in</Typography>
                         <Typography variant="body1">{selectedBooking.check_in}</Typography>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">Check-out</Typography>
                         <Typography variant="body1">{selectedBooking.check_out}</Typography>
                       </Grid>
-                      <Grid size={{ xs: 12 }}>
+                      <Grid item xs={12}>
                         <Typography variant="body2" color="text.secondary">Total Amount</Typography>
                         <Typography variant="h6" color="primary.main">${selectedBooking.total_price}</Typography>
                       </Grid>
