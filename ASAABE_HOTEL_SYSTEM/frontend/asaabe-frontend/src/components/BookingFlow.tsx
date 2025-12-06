@@ -27,7 +27,7 @@ const steps = ['Select Room & Dates', 'Guest Details', 'Review & Payment'];
 interface Room {
   id: number;
   title: string;
-  price: string | number;
+  price: number;
   image?: string;
   image_url?: string;
   tags?: string[];
@@ -87,7 +87,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
         const roomsArray = Array.isArray(data) ? data : (data.results || []);
         
         if (Array.isArray(roomsArray)) {
-          const transformedRooms = roomsArray.map((room: Room) => ({
+          const transformedRooms = roomsArray.map((room: any) => ({
             id: room.id,
             title: room.title,
             price: typeof room.price === 'string' ? parseFloat(room.price) : Number(room.price),
@@ -159,7 +159,8 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
 
   const calculateTotal = () => {
     if (selectedRoom) {
-      return selectedRoom.price * calculateNights();
+      const price = typeof selectedRoom.price === 'number' ? selectedRoom.price : Number(selectedRoom.price);
+      return price * calculateNights();
     }
     return 0;
   };
