@@ -30,6 +30,15 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# Add Railway domain automatically
+if 'RAILWAY_PUBLIC_DOMAIN' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['RAILWAY_PUBLIC_DOMAIN'])
+if 'RAILWAY_STATIC_URL' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['RAILWAY_STATIC_URL'])
+
+# Allow all Railway domains
+ALLOWED_HOSTS.extend(['*.railway.app', '*.up.railway.app'])
+
 
 # Application definition
 
