@@ -179,7 +179,7 @@ SIMPLE_JWT = {
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = os.environ.get(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,http://127.0.0.1:3000'
+    'http://localhost:3000,http://127.0.0.1:3000,https://asaabe-hotel-system.vercel.app'
 ).split(',')
 
 CORS_ALLOW_CREDENTIALS = True
@@ -190,6 +190,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
     'http://localhost:3000',
+    'https://asaabe-hotel-system.vercel.app',
+    'https://*.vercel.app',
 ]
 
 if 'RAILWAY_PUBLIC_DOMAIN' in os.environ:
