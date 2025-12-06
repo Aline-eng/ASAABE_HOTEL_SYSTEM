@@ -42,7 +42,7 @@ api.interceptors.response.use(
           localStorage.setItem('access_token', access);
           
           return api(originalRequest);
-        } catch (refreshError) {
+        } catch {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           window.location.href = '/login';
@@ -56,18 +56,18 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  register: (userData: any) => api.post('/auth/register/', userData),
-  login: (credentials: any) => api.post('/auth/login/', credentials),
+  register: (userData: Record<string, unknown>) => api.post('/auth/register/', userData),
+  login: (credentials: Record<string, unknown>) => api.post('/auth/login/', credentials),
   getProfile: () => api.get('/auth/profile/'),
-  updateProfile: (data: any) => api.patch('/auth/profile/', data),
+  updateProfile: (data: Record<string, unknown>) => api.patch('/auth/profile/', data),
 };
 
 // Rooms API
 export const roomsAPI = {
-  getRooms: (params?: any) => api.get('/rooms/', { params }),
+  getRooms: (params?: Record<string, unknown>) => api.get('/rooms/', { params }),
   getRoom: (id: number) => api.get(`/rooms/${id}/`),
   getFeaturedRooms: () => api.get('/rooms/featured/'),
-  addReview: (roomId: number, review: any) => api.post(`/rooms/${roomId}/add_review/`, review),
+  addReview: (roomId: number, review: Record<string, unknown>) => api.post(`/rooms/${roomId}/add_review/`, review),
   getRoomTypes: () => api.get('/room-types/'),
   getAmenities: () => api.get('/amenities/'),
 };
@@ -75,7 +75,7 @@ export const roomsAPI = {
 // Bookings API
 export const bookingsAPI = {
   getBookings: () => api.get('/bookings/'),
-  createBooking: (bookingData: any) => api.post('/bookings/', bookingData),
+  createBooking: (bookingData: Record<string, unknown>) => api.post('/bookings/', bookingData),
   getBooking: (id: number) => api.get(`/bookings/${id}/`),
   confirmBooking: (id: number) => api.post(`/bookings/${id}/confirm/`),
   checkIn: (id: number) => api.post(`/bookings/${id}/check_in/`),

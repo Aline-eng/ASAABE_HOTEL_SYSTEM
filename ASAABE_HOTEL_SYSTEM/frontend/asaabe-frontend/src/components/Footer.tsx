@@ -33,7 +33,7 @@ export default function Footer() {
               ASAABE Hotel
             </Typography>
             <Typography variant="body2" sx={{ mb: 2, opacity: 0.8 }}>
-              Experience luxury and comfort at Rwanda's premier hotel destination. 
+              Experience luxury and comfort at Rwanda&apos;s premier hotel destination. 
               Located in the heart of Kibuye with stunning lake views.
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
