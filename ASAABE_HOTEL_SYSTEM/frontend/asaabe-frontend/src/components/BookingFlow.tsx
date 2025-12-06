@@ -24,6 +24,16 @@ import { API_URL } from '../config/api';
 
 const steps = ['Select Room & Dates', 'Guest Details', 'Review & Payment'];
 
+interface Room {
+  id: number;
+  title: string;
+  price: string | number;
+  image_url?: string;
+  tags?: string[];
+  capacity?: number;
+  bed_type?: string;
+}
+
 interface BookingData {
   room: number | null;
   checkIn: string;
@@ -61,7 +71,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
     guestDetails: []
   });
 
-  const [rooms, setRooms] = useState<Array<Record<string, unknown>>>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
 
   useEffect(() => {
     fetchRooms();
@@ -75,10 +85,10 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
         const roomsArray = Array.isArray(data) ? data : (data.results || []);
         
         if (Array.isArray(roomsArray)) {
-          const transformedRooms = roomsArray.map((room: Record<string, unknown>) => ({
+          const transformedRooms = roomsArray.map((room: Room) => ({
             id: room.id,
             title: room.title,
-            price: parseFloat(room.price),
+            price: typeof room.price === 'string' ? parseFloat(room.price) : Number(room.price),
             image: room.image_url || '/room1.jpg',
             tags: room.tags || ['Wi-Fi', 'Air Conditioning', 'TV'],
             capacity: room.capacity,
