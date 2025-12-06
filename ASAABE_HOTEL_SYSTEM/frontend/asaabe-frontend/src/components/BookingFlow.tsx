@@ -60,7 +60,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
     guestDetails: []
   });
 
-  const [rooms, setRooms] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<Array<Record<string, unknown>>>([]);
 
   useEffect(() => {
     fetchRooms();
@@ -74,7 +74,7 @@ export const BookingFlow = ({ preselectedRoomId }: { preselectedRoomId?: number 
         const roomsArray = Array.isArray(data) ? data : (data.results || []);
         
         if (Array.isArray(roomsArray)) {
-          const transformedRooms = roomsArray.map((room: any) => ({
+          const transformedRooms = roomsArray.map((room: Record<string, unknown>) => ({
             id: room.id,
             title: room.title,
             price: parseFloat(room.price),
