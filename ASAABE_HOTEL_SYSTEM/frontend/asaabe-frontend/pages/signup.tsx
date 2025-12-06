@@ -121,10 +121,13 @@ export default function Signup() {
         localStorage.setItem('refresh_token', data.refresh);
         localStorage.setItem('user_data', JSON.stringify(data.user));
 
+        // Notify Navbar to update
+        window.dispatchEvent(new Event('storage'));
+
         setSuccess('Account created successfully! Redirecting...');
 
         setTimeout(() => {
-          window.location.href = '/';
+          router.push('/');
         }, 2000);
       } else {
         console.error('Registration error:', data);

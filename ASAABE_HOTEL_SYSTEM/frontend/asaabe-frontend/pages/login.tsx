@@ -58,6 +58,9 @@ export default function Login() {
         localStorage.setItem('refresh_token', data.refresh);
         localStorage.setItem('user_data', JSON.stringify(data.user));
         
+        // Notify Navbar to update
+        window.dispatchEvent(new Event('storage'));
+        
         setSuccess('Login successful! Redirecting...');
         
         // Redirect admin to admin dashboard, others to home or redirect URL
